@@ -5,7 +5,7 @@
 *.suo
 *.user
 *.sln.docstates
-
+UnityEngine.dll
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

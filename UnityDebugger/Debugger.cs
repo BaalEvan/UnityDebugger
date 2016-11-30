@@ -3,6 +3,9 @@ using System;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
+
 
 namespace UnityDebugger
 {
@@ -25,9 +28,10 @@ namespace UnityDebugger
         public AssertException(string message) : base(message) { }
         public AssertException(string message, Exception innerException) : base(message, innerException) { }
     }
-
+    
     public static class Debugger
     {
+        public static bool exists = false;
         /// <summary>
         /// If false, Debugger does nothing. 
         /// Default value: Debug.isDebugBuild
@@ -40,6 +44,8 @@ namespace UnityDebugger
         /// </summary>
         public static LogLevel LogLevel { get; set; }
 
+        public static bool DefaultState;
+
         public static Dictionary<string, bool> Channels { get; set; }
 
         static Debugger()
@@ -47,6 +53,21 @@ namespace UnityDebugger
             Enabled = Debug.isDebugBuild;
             LogLevel = LogLevel.Info;
             Channels = new Dictionary<string, bool>();
+            exists = true;
+
+            DefaultState = true;
+            if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.WindowsEditor)
+            {
+                ChannelSettingsSO channelSettings = Resources.Load<ChannelSettingsSO>("ChannelSettings");
+                if (channelSettings != null)
+                {
+                    DefaultState = channelSettings.DefaultState;
+                    foreach (string channelName in channelSettings.ChannelState.Keys.AsEnumerable())
+                    {
+                        Channels.Add(channelName, channelSettings.ChannelState[channelName]);
+                    }
+                }
+            }
         }
 
         #region Asserts
@@ -98,6 +119,7 @@ namespace UnityDebugger
         /// <summary>
         /// Writes info to console. Works only when Debugger is Enabled.
         /// </summary>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="message">Info to write.</param>
         /// <param name="context">Context.</param>
         public static void Log(string channel, string message, Object context = null)
@@ -112,7 +134,7 @@ namespace UnityDebugger
         /// Writes info to console. Works only when Debugger is Enabled.
         /// </summary>
         /// <param name="context">Context.</param>
-        /// <param name="channel">Channel.</param>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="format">Format.</param>
         /// <param name="args">Arguments.</param>
         public static void LogFormat(Object context, string channel, string format, params object[] args)
@@ -123,7 +145,7 @@ namespace UnityDebugger
         /// <summary>
         /// Writes info to console. Works only when Debugger is Enabled.
         /// </summary>
-        /// <param name="channel">Channel.</param>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="format">Format.</param>
         /// <param name="args">Arguments.</param>
         public static void LogFormat(string channel, string format, params object[] args)
@@ -147,6 +169,7 @@ namespace UnityDebugger
         /// <summary>
         /// Writes warning to console. Works only when Debugger is Enabled.
         /// </summary>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="message">Warning to write.</param>
         /// <param name="context">Context.</param>
         public static void LogWarning(string channel, string message, Object context = null)
@@ -161,7 +184,7 @@ namespace UnityDebugger
         /// Writes info to console. Works only when Debugger is Enabled.
         /// </summary>
         /// <param name="context">Context.</param>
-        /// <param name="channel">Channel.</param>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="format">Format.</param>
         /// <param name="args">Arguments.</param>
         public static void LogWarningFormat(Object context, string channel, string format, params object[] args)
@@ -172,7 +195,7 @@ namespace UnityDebugger
         /// <summary>
         /// Writes info to console. Works only when Debugger is Enabled.
         /// </summary>
-        /// <param name="channel">Channel.</param>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="format">Format.</param>
         /// <param name="args">Arguments.</param>
         public static void LogWarningFormat(string channel, string format, params object[] args)
@@ -196,6 +219,7 @@ namespace UnityDebugger
         /// <summary>
         /// Writes error to console. Works only when Debugger is Enabled.
         /// </summary>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="message">Error to write.</param>
         /// <param name="context">Context.</param>
         public static void LogError(string channel, string message, Object context = null)
@@ -210,7 +234,7 @@ namespace UnityDebugger
         /// Writes info to console. Works only when Debugger is Enabled.
         /// </summary>
         /// <param name="context">Context.</param>
-        /// <param name="channel">Channel.</param>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="format">Format.</param>
         /// <param name="args">Arguments.</param>
         public static void LogErrorFormat(Object context, string channel, string format, params object[] args)
@@ -221,7 +245,7 @@ namespace UnityDebugger
         /// <summary>
         /// Writes info to console. Works only when Debugger is Enabled.
         /// </summary>
-        /// <param name="channel">Channel.</param>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="format">Format.</param>
         /// <param name="args">Arguments.</param>
         public static void LogErrorFormat(string channel, string format, params object[] args)
@@ -245,6 +269,7 @@ namespace UnityDebugger
         /// <summary>
         /// Writes exception to console. Works only when Debugger is Enabled.
         /// </summary>
+        /// <param name = "channel">Channel to log to.</param>
         /// <param name="exception">Exception to write.</param>
         /// <param name="context">Context.</param>
         public static void LogException(string channel, Exception exception, Object context = null)
@@ -272,8 +297,9 @@ namespace UnityDebugger
             }
             else
             {
-                Channels.Add(channel, false);
-                return false;
+                bool channelSetting = DefaultState;
+                Channels.Add(channel, channelSetting);
+                return channelSetting;
             }
         }
         #endregion

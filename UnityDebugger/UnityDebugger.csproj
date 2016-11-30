@@ -34,12 +34,22 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\Development Programs\Unity 4.6\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>.\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelDictionary.cs" />
+    <Compile Include="ChannelSettingsSO.cs" />
     <Compile Include="Debugger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializableDictionaryBase\SerializableDictionaryBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SerializableDictionaryBase\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SerializableDictionaryBase\LICENSE.txt.meta" />
+    <None Include="SerializableDictionaryBase\SerializableDictionaryBase.cs.meta" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
